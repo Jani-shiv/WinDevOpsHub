@@ -1,0 +1,117 @@
+# WinDevOpsHub .gitignore
+# ========================
+# NEVER commit: secrets, credentials, private keys, tokens, machine-specific config
+
+# ──────────────────────────────────────────────
+# Secrets & Credentials (CRITICAL — never commit)
+# ──────────────────────────────────────────────
+*.pem
+*.key
+*.pfx
+*.p12
+*.cer
+*.crt
+*.p8
+.env
+.env.*
+!.env.example
+secrets.json
+credentials.json
+*credentials*
+*secret*
+*token*
+*.secrets
+.aws/credentials
+.azure/
+.kube/config
+
+# ──────────────────────────────────────────────
+# Logs
+# ──────────────────────────────────────────────
+logs/
+*.log
+*.log.*
+*.tmp.log
+
+# ──────────────────────────────────────────────
+# Test output & coverage
+# ──────────────────────────────────────────────
+TestResults/
+*.xml
+coverage/
+*.coverage
+*.coveragexml
+
+# ──────────────────────────────────────────────
+# Build artifacts
+# ──────────────────────────────────────────────
+dist/
+build/
+out/
+*.zip
+*.msi
+*.exe
+!examples/**/*.exe
+
+# ──────────────────────────────────────────────
+# Machine-specific configuration
+# ──────────────────────────────────────────────
+config/local.json
+config/local.*.json
+config/machine.json
+*.local.json
+*.user.json
+
+# ──────────────────────────────────────────────
+# PowerShell
+# ──────────────────────────────────────────────
+*.pssproj.user
+*.ps1xml.user
+
+# ──────────────────────────────────────────────
+# Windows
+# ──────────────────────────────────────────────
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# ──────────────────────────────────────────────
+# Visual Studio Code
+# ──────────────────────────────────────────────
+.vscode/settings.json
+.vscode/launch.json
+.vscode/*.code-workspace
+
+# Keep .vscode/extensions.json (recommended extensions are useful to share)
+!.vscode/extensions.json
+
+# ──────────────────────────────────────────────
+# JetBrains IDEs
+# ──────────────────────────────────────────────
+.idea/
+
+# ──────────────────────────────────────────────
+# Temp & scratch
+# ──────────────────────────────────────────────
+tmp/
+temp/
+scratch/
+*.tmp
+*.bak
+*.orig
+*.swp
+
+# ──────────────────────────────────────────────
+# Installers downloaded by scripts
+# ──────────────────────────────────────────────
+downloads/
+*.installer.*
+
+# ──────────────────────────────────────────────
+# Pester / PSScriptAnalyzer output
+# ──────────────────────────────────────────────
+TestResults.xml
+pester-results.xml
+analyzer-results.xml
