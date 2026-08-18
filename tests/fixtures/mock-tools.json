@@ -1,0 +1,26 @@
+{
+  "version": "1.0.0",
+  "description": "Mock tool registry for unit tests",
+  "tools": [
+    {
+      "id": "mock-present",
+      "name": "Mock Present Tool",
+      "category": "test",
+      "packageManager": "winget",
+      "packageId": "Mock.Present",
+      "command": "pwsh",
+      "versionArg": "--version",
+      "required": true
+    },
+    {
+      "id": "mock-absent",
+      "name": "Mock Absent Tool",
+      "category": "test",
+      "packageManager": "winget",
+      "packageId": "Mock.Absent",
+      "command": "this-command-does-not-exist-wdoh-test",
+      "versionArg": "--version",
+      "required": false
+    }
+  ]
+}
