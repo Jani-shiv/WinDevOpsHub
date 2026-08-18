@@ -61,13 +61,25 @@ function Get-ToolVersion {
         [Parameter(Mandatory)] [PSCustomObject] $ToolDefinition
     )
 
-    $cmdInfo = Get-Command $ToolDefinition.command -ErrorAction SilentlyContinue
-    if (-not $cmdInfo) { return $null }
+    $cmd = $ToolDefinition.command
+    if (-not (Get-Command $cmd -ErrorAction SilentlyContinue)) {
+        return $null
+    }
 
-    $cmdPath = if ($cmdInfo.Source) { $cmdInfo.Source } else { $ToolDefinition.command }
-    $verArgs = if ($ToolDefinition.versionArg) { $ToolDefinition.versionArg } else { '--version' }
+    $verArg = if ($ToolDefinition.versionArg) { $ToolDefinition.versionArg } else { '--version' }
 
+    # For pwsh itself, $PSVersionTable is instant, reliable across all platforms
+    if ($ToolDefinition.id -eq 'pwsh' -or $cmd -eq 'pwsh') {
+        if ($PSVersionTable.PSVersion) {
+            return "PowerShell $($PSVersionTable.PSVersion)"
+        }
+    }
+
+    # Execute version check with ProcessStartInfo and 3-second timeout protection
     try {
+        $cmdInfo = Get-Command $cmd -ErrorAction SilentlyContinue
+        $cmdPath = if ($cmdInfo.Source) { $cmdInfo.Source } else { $cmd }
+
         $pinfo = [System.Diagnostics.ProcessStartInfo]::new()
         $pinfo.RedirectStandardOutput = $true
         $pinfo.RedirectStandardError  = $true
@@ -76,39 +88,53 @@ function Get-ToolVersion {
 
         if ($cmdPath -match '\.ps1$') {
             $pinfo.FileName  = 'pwsh'
-            $pinfo.Arguments = "-NoProfile -Command `"& '$cmdPath' $verArgs`""
+            $pinfo.Arguments = "-NoProfile -Command `"& '$cmdPath' $verArg`""
         }
         elseif ($cmdPath -match '\.(cmd|bat)$') {
             $pinfo.FileName  = 'cmd.exe'
-            $pinfo.Arguments = "/c `"$cmdPath`" $verArgs"
+            $pinfo.Arguments = "/c `"$cmdPath`" $verArg"
         }
         else {
             $pinfo.FileName  = $cmdPath
-            $pinfo.Arguments = $verArgs
+            $pinfo.Arguments = $verArg
         }
 
         $proc = [System.Diagnostics.Process]::Start($pinfo)
-        if ($null -eq $proc) { return $null }
+        if ($null -ne $proc) {
+            $finished = $proc.WaitForExit(3000)
+            if ($finished) {
+                $out = $proc.StandardOutput.ReadToEnd()
+                if ([string]::IsNullOrWhiteSpace($out)) {
+                    $out = $proc.StandardError.ReadToEnd()
+                }
+                if (-not [string]::IsNullOrWhiteSpace($out)) {
+                    $firstLine = ($out -split "`r?`n" | Where-Object { $_ -match '\S' } | Select-Object -First 1)
+                    if ($firstLine) { return $firstLine.Trim() }
+                }
+            }
+            else {
+                try { $proc.Kill() } catch { }
+            }
+        }
+    }
+    catch { }
 
-        $finished = $proc.WaitForExit(3000)
-        if ($finished) {
-            $out = $proc.StandardOutput.ReadToEnd()
-            if (-not $out) {
-                $out = $proc.StandardError.ReadToEnd()
-            }
-            if ($out) {
-                $line = ($out -split "`r?`n" | Where-Object { $_ -match '\S' } | Select-Object -First 1)
-                return $line?.Trim()
-            }
+    # Fallback to direct PowerShell invocation
+    try {
+        $argsList = $verArg -split ' '
+        $raw = & $cmd @argsList 2>&1
+        $version = $raw |
+            ForEach-Object { $_.ToString().Trim() } |
+            Where-Object { -not [string]::IsNullOrWhiteSpace($_) } |
+            Select-Object -First 1
+
+        if (-not [string]::IsNullOrWhiteSpace($version)) {
+            return $version
         }
-        else {
-            try { $proc.Kill() } catch { }
-        }
-        return $null
     }
-    catch {
-        return $null
-    }
+    catch { }
+
+    return $null
 }
 
 function Install-Tool {
