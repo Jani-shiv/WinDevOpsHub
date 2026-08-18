@@ -1,0 +1,14 @@
+{
+  "name": "DevOps",
+  "description": "Full DevOps workstation — containers, Kubernetes, IaC, and cloud-ready tooling. Extends Minimal.",
+  "extends": "Minimal",
+  "tools": [
+    "docker",
+    "kubectl",
+    "helm",
+    "terraform",
+    "k9s",
+    "yq",
+    "vscode"
+  ]
+}

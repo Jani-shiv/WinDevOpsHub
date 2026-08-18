@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Jani-shiv/WinDevOpsHub/main/config/schemas/default.schema.json",
+  "version": "1.0.0",
+  "settings": {
+    "logLevel": "INFO",
+    "logFile": null,
+    "dryRun": false,
+    "confirmInstalls": true,
+    "preferUserScope": true,
+    "packageManager": "winget",
+    "fallbackPackageManager": "choco",
+    "verifyAfterInstall": true,
+    "continueOnError": false,
+    "showProgressBar": true
+  },
+  "paths": {
+    "toolsDir": null,
+    "tempDir": null,
+    "configDir": null
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "Azure",
+  "description": "Azure cloud engineering — extends DevOps with Azure CLI.",
+  "extends": "DevOps",
+  "tools": [
+    "azure-cli"
+  ]
+}

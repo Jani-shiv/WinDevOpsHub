@@ -1,0 +1,16 @@
+{
+  "name": "Minimal",
+  "description": "Essential developer tools — Git, shell enhancements, and basic utilities. Suitable for any Windows developer.",
+  "extends": null,
+  "tools": [
+    "pwsh",
+    "git",
+    "github-cli",
+    "openssh",
+    "curl",
+    "jq",
+    "7zip",
+    "clink",
+    "windows-terminal"
+  ]
+}

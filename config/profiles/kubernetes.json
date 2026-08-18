@@ -1,0 +1,10 @@
+{
+  "name": "Kubernetes",
+  "description": "Kubernetes-focused engineering — extends DevOps with the full Kubernetes toolchain.",
+  "extends": "DevOps",
+  "tools": [
+    "kubectl",
+    "helm",
+    "k9s"
+  ]
+}

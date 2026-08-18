@@ -1,0 +1,8 @@
+{
+  "name": "AWS",
+  "description": "AWS cloud engineering — extends DevOps with AWS CLI and Session Manager tooling.",
+  "extends": "DevOps",
+  "tools": [
+    "aws-cli"
+  ]
+}

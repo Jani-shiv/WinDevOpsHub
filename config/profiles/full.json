@@ -1,0 +1,12 @@
+{
+  "name": "Full",
+  "description": "Complete WinDevOpsHub toolset — all cloud platforms and utilities. Extends DevOps.",
+  "extends": "DevOps",
+  "tools": [
+    "aws-cli",
+    "azure-cli",
+    "gcloud",
+    "k9s",
+    "yq"
+  ]
+}
