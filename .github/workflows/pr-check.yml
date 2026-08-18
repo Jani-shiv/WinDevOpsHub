@@ -1,0 +1,67 @@
+name: PR Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  pr-title-check:
+    name: PR Title Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR title follows conventional commits
+        run: |
+          title="${{ github.event.pull_request.title }}"
+          echo "PR Title: $title"
+          # Conventional commit prefixes
+          if echo "$title" | grep -qiE '^(feat|fix|docs|chore|refactor|test|ci|perf|style|build|revert)(\(.+\))?!?:'; then
+            echo "PR title follows conventional commit format."
+          else
+            echo "WARNING: PR title does not follow conventional commits format."
+            echo "Expected: feat|fix|docs|chore|refactor|test|ci|perf|style|build|revert: description"
+            # Don't fail — just warn
+          fi
+
+  syntax-check:
+    name: Syntax Check (Changed PS files)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate PowerShell syntax
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $files = Get-ChildItem -Recurse -Include '*.ps1','*.psm1','*.psd1' |
+                   Where-Object { $_.FullName -notmatch '\\\.git\\' }
+          $errors = 0
+          foreach ($f in $files) {
+            $content = Get-Content $f.FullName -Raw
+            $parseErrors = $null; $tokens = $null
+            [System.Management.Automation.Language.Parser]::ParseInput($content,[ref]$tokens,[ref]$parseErrors) | Out-Null
+            if ($parseErrors.Count -gt 0) {
+              Write-Host "SYNTAX ERROR: $($f.FullName)" -ForegroundColor Red
+              $parseErrors | ForEach-Object { Write-Host "  $_" }
+              $errors++
+            }
+          }
+          if ($errors -gt 0) { throw "$errors syntax error(s) found." }
+          Write-Host "All PowerShell files passed syntax check." -ForegroundColor Green
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: windows-latest
+    needs: syntax-check
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Pester
+        shell: pwsh
+        run: Install-Module Pester -Force -Scope CurrentUser -MinimumVersion 5.5.0
+      - name: Run unit tests
+        shell: pwsh
+        run: |
+          $config = New-PesterConfiguration
+          $config.Run.Path = '.\tests\unit'
+          $config.Output.Verbosity = 'Detailed'
+          $result = Invoke-Pester -Configuration $config
+          if ($result.FailedCount -gt 0) { throw "$($result.FailedCount) test(s) failed." }
